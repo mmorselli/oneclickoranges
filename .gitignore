@@ -1,3 +1,7 @@
 /1co/Downloads
 /1co/Python
 /1co/Temp
+/venv
+/1co/App/__pycache__
+/1co/Configs/.env
+/1co/App/modules/__pycache__

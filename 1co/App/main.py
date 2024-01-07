@@ -1,6 +1,9 @@
 import customtkinter
 import os
 from PIL import Image
+import threading
+from modules.effort import PrintEffort
+from config import config_form
 
 
 
@@ -44,15 +47,15 @@ class App(customtkinter.CTk):
                                                    image=self.home_image, anchor="w", command=self.home_button_event)
         self.home_button.grid(row=1, column=0, sticky="ew")
 
-        self.frame_2_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Frame 2",
+        self.frame_node_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Node",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.chat_image, anchor="w", command=self.frame_2_button_event)
-        self.frame_2_button.grid(row=2, column=0, sticky="ew")
+                                                      image=self.chat_image, anchor="w", command=self.frame_node_button_event)
+        self.frame_node_button.grid(row=2, column=0, sticky="ew")
 
-        self.frame_3_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Frame 3",
+        self.frame_config_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Config",
                                                       fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                      image=self.add_user_image, anchor="w", command=self.frame_3_button_event)
-        self.frame_3_button.grid(row=3, column=0, sticky="ew")
+                                                      image=self.add_user_image, anchor="w", command=self.frame_config_button_event)
+        self.frame_config_button.grid(row=3, column=0, sticky="ew")
 
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame, values=["Light", "Dark", "System"],
                                                                 command=self.change_appearance_mode_event)
@@ -66,9 +69,13 @@ class App(customtkinter.CTk):
         # create a separate frame for the logo
         self.logo_frame = customtkinter.CTkFrame(self.home_frame, corner_radius=0, fg_color="transparent")
         self.logo_frame.grid(row=0, column=0, columnspan=3)  # span across two columns
-
         self.home_frame_large_image_label = customtkinter.CTkLabel(self.logo_frame, text="", image=self.logo_main)
         self.home_frame_large_image_label.pack(padx=20, pady=10)  # use pack instead of grid
+
+        # In a separate thread
+        self.home_frame_text = customtkinter.CTkTextbox(self.home_frame)
+        self.home_frame_text.grid(row=2, column=0, columnspan=3, sticky="nsew")  # Adjust row and column as needed
+        threading.Thread(target=PrintEffort, args=(self.home_frame_text,)).start()
 
         self.home_frame_button_1 = customtkinter.CTkButton(self.home_frame, text="Orange 1", image=self.image_icon_image, compound="top", anchor="center")
         self.home_frame_button_1.grid(row=1, column=0, padx=20, pady=10)
@@ -78,42 +85,45 @@ class App(customtkinter.CTk):
         self.home_frame_button_3.grid(row=1, column=2, padx=20, pady=10)
 
         # create second frame
-        self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.node_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
 
-        # create third frame
-        self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        # create config frame
+        self.config_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        config_form(self.config_frame)  # call config_form function from config.py
+
 
         # select default frame
         self.select_frame_by_name("home")
 
+
     def select_frame_by_name(self, name):
         # set button color for selected button
         self.home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
-        self.frame_2_button.configure(fg_color=("gray75", "gray25") if name == "frame_2" else "transparent")
-        self.frame_3_button.configure(fg_color=("gray75", "gray25") if name == "frame_3" else "transparent")
+        self.frame_node_button.configure(fg_color=("gray75", "gray25") if name == "frame_node" else "transparent")
+        self.frame_config_button.configure(fg_color=("gray75", "gray25") if name == "frame_config" else "transparent")
 
         # show selected frame
         if name == "home":
             self.home_frame.grid(row=0, column=1, sticky="nsew")
         else:
             self.home_frame.grid_forget()
-        if name == "frame_2":
-            self.second_frame.grid(row=0, column=1, sticky="nsew")
+        if name == "frame_node":
+            self.node_frame.grid(row=0, column=1, sticky="nsew")
         else:
-            self.second_frame.grid_forget()
-        if name == "frame_3":
-            self.third_frame.grid(row=0, column=1, sticky="nsew")
+            self.node_frame.grid_forget()
+        if name == "frame_config":
+            self.config_frame.grid(row=0, column=1, sticky="nsew")
         else:
-            self.third_frame.grid_forget()
+            self.config_frame.grid_forget()
 
     def home_button_event(self):
         self.select_frame_by_name("home")
 
-    def frame_2_button_event(self):
-        self.select_frame_by_name("frame_2")
+    def frame_node_button_event(self):
+        self.select_frame_by_name("frame_node")
 
-    def frame_3_button_event(self):
-        self.select_frame_by_name("frame_3")
+    def frame_config_button_event(self):
+        self.select_frame_by_name("frame_config")
 
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
