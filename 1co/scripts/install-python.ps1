@@ -1,3 +1,4 @@
+# set Python version
 $major = "3"
 $minor = "11"
 $patch = "6"
@@ -20,37 +21,33 @@ if (!(Test-Path -Path $tempDir)) { New-Item -ItemType Directory -Path $tempDir -
 
 Write-Host "Downloading Python..."
 
-#(New-Object Net.WebClient).DownloadFile($pythonUrl, $pythonDownloadPath)
+Invoke-WebRequest -UserAgent "Wget" -Uri $pythonUrl -OutFile $pythonDownloadPath
 
-# Invoke-WebRequest -UserAgent "Wget" -Uri $pythonUrl -OutFile $pythonDownloadPath
+Write-Host "Installing 7Zip4PowerShell..."
+#   Install 7zip module
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force
+Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
 
-# Write-Host "Installing 7Zip4PowerShell..."
-# #   Install 7zip module
-# [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-# Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Scope CurrentUser -Force
-# Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
-
-# # Check if 7Zip4PowerShell module is already installed
-# if (-not (Get-Module -ListAvailable -Name 7Zip4PowerShell)) {
-#     Install-Module -Name 7Zip4PowerShell -Force -Scope CurrentUser
-# } else {
-#     Write-Host "7Zip4PowerShell module already installed"
-# }
-
-
+# Check if 7Zip4PowerShell module is already installed
+if (-not (Get-Module -ListAvailable -Name 7Zip4PowerShell)) {
+    Install-Module -Name 7Zip4PowerShell -Force -Scope CurrentUser
+} else {
+    Write-Host "7Zip4PowerShell module already installed"
+}
 
 Write-Host "Install Python..."
 
-# Expand-7Zip -ArchiveFileName $pythonDownloadPath -TargetPath $tempDir
+Expand-7Zip -ArchiveFileName $pythonDownloadPath -TargetPath $tempDir
 
 # Move the folder
-# Move-Item -Path $PythonSourcePath -Destination $pythonInstallDir 
+Move-Item -Path $PythonSourcePath -Destination $pythonInstallDir 
 
 
 Write-Host "Installing/updating pip..."
 
-# # update pip
-# Start-Process -FilePath "$pythonInstallDir\python.exe" -ArgumentList "-m pip install --upgrade pip" -Wait
+# update pip
+Start-Process -FilePath "$pythonInstallDir\python.exe" -ArgumentList "-m pip install --upgrade pip" -Wait
 
 Write-Host "Installing Dependencies..."
 
