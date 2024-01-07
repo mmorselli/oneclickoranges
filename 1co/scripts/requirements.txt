@@ -1,0 +1,7 @@
+python-dotenv
+click
+py-algorand-sdk
+pyinstaller
+qrcode
+customtkinter
+Pillow
